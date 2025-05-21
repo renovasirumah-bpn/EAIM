@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<!-- saved from url=(0095)file:///C:/04%20HANDAR/PROJECTS/INFORMATION%20MANAGEMENT/Prototype/Information_Management.html? -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Engineering Information Management Prototype</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0; background: #f4f6f8; color: #333;
+  }
+  header {
+    background: #1c2372; color: white; padding: 1rem; text-align: center;
+    font-size: 1.5rem; font-weight: bold;
+  }
+  #loginPage, #mainPage {
+    padding: 2rem;
+  }
+  #loginPage {
+    max-width: 300px;
+    margin: 5rem auto;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+  }
+  label {
+    display: block;
+    margin-bottom: 0.3rem;
+    font-weight: 600;
+  }
+  input[type="text"], input[type="password"], select {
+    width: 100%;
+    padding: 0.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 1rem;
+  }
+  button {
+    background: #1c2372;
+    border: none;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    font-size: 1.1rem;
+    cursor: pointer;
+  }
+  button:hover {
+    background: #0b5ed7;
+  }
+  /* Main page layout */
+  #mainPage {
+    display: none;
+  }
+  nav {
+    background: #343a40;
+    color: white;
+    padding: 0.5rem 1rem;
+    display: flex;
+    gap: 1rem;
+  }
+  nav button {
+    background: transparent;
+    color: white;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 0.5rem 0.75rem;
+  }
+  nav button:hover, nav button.active {
+    background: #0d6efd;
+    border-radius: 4px;
+  }
+  section {
+    margin-top: 1rem;
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    min-height: 300px;
+  }
+  #searchResults {
+    max-height: none;
+    overflow-y: auto;
+    margin-top: 1rem;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+  }
+  th {
+    background-color: #f2f2f2;
+    text-align: left;
+  }
+  a {
+    color: #0800ff;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  /* Modal styles */
+  #equipmentModal {
+    display: none;
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  #equipmentModalContent {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80%;
+    overflow-y: auto;
+    position: relative;
+  }
+  #modalCloseBtn {
+    position: absolute;
+    top: 8px; right: 10px;
+    font-size: 18px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+  /* Project Details Modal */
+  #projectDetailsModal {
+    display: none;
+    position: fixed; top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.6);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+  }
+  #projectDetailsContent {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    max-width: 400px;
+    width: 90%;
+    max-height: 80%;
+    overflow-y: auto;
+    position: relative;
+  }
+  #projectModalCloseBtn {
+    position: absolute;
+    top: 8px; right: 10px;
+    font-size: 18px;
+    background: none;
+    border: none;
+    cursor: pointer;
+  }
+</style>
+<style type="text/css" id="operaUserStyle"></style></head>
+<body>
+<header>Engineering Information Management Prototype</header>
+
+<div id="loginPage">
+  <h2>Login</h2>
+  <form id="loginForm">
+    <label for="username">Username</label>
+    <input id="username" type="text" placeholder="Enter username" required />
+    <label for="password">Password</label>
+    <input id="password" type="password" placeholder="Enter password" required />
+    <button type="submit">Login</button>
+  </form>
+</div>
+
+<div id="mainPage">
+  <nav>
+    <button class="active" data-section="naturalLanguageSearchSection">Natural Language Search</button>
+    <button data-section="searchSection">Documents Search</button>
+    <button data-section="projectSection">Projects Search</button>
+    <button data-section="dashboardSection">Equipment Dashboard</button>
+    <button data-section="vrSection">3D Asset View</button>
+    <button data-section="gisSection">GIS</button>
+    <button data-section="digitalTwinSection">Digital Twin</button>
+    <button data-section="validationSection">Metadata Validation</button>
+  </nav>
+
+<!-- Natural Language Search Section -->
+<section id="naturalLanguageSearchSection" class="contentSection" style="display: none;">
+    <h3>Natural Language Search</h3>
+    <p>Ask a question or enter a search query in natural language.</p>
+    <input type="text" id="naturalLanguageSearchInput" placeholder="Ask a question...">
+    <button id="naturalLanguageSearchButton">Search</button>
+    <button id="clearHistoryButton">Clear History</button>
+    
+    <div id="naturalLanguageSearchResults"></div>
+    <div id="historicalQueries" style="margin-top: 1rem; border-top: 1px solid #ddd; padding-top: 1rem;">
+      <h4>Historical Queries</h4>
+      <div id="historicalQueriesList"></div>
+    </div>
+</section>
+  
+<!-- Document Search Section -->
+  <section id="searchSection" class="contentSection" style="display: block;">
+    <h3>Document Search</h3>
+    <p>Use the search box to find documents by keyword or tag.</p>
+    <input type="text" id="searchInput" placeholder="Type search query...">
+    <div id="searchResults" style="margin-top: 1rem; border-top: 1px solid #ddd; padding-top: 1rem;"><p>Start typing to search documents...</p></div> <!-- Add consistent styling -->
+  </section>
+
+<!-- Equipment Info Modal -->
+<div id="equipmentModal" style="display:none;">
+    <div id="equipmentModalContent">
+        <button id="modalCloseBtn">×</button>
+        <div id="modalBodyContent"></div>
+    </div>
+</div>
+
+<!-- Project Details Modal -->
+<div id="projectDetailsModal" style="display:none;">
+  <div id="projectDetailsContent">
+    <button id="projectModalCloseBtn">×</button>
+    <h4>Project Details</h4>
+    <div id="projectDetailsBody"></div>
+  </div>
+</div>
+
+<!-- Project Search Section -->
+  <section id="projectSection" class="contentSection" style="display: block;">
+    <h3>Project Search</h3>
+    <p>Use the search box to find Project by keyword of the project details.</p>
+    <input type="text" id="projectSearchInput" placeholder="Type search query..." />
+    <div id="projectSearchResults"></div>
+  </section>  
+
+<!-- Equipment Dashboard Section -->
+  <section id="dashboardSection" class="contentSection" style="display:none;">
+    <h3>Equipment Dashboard</h3>
+    <input type="text" id="tagSearchInput" placeholder="Search by Tag Number or Name..." />
+  <div id="equipmentResults"><p>Start typing to search equipment...</p></div>
+    <p>Simulated sensor data and equipment status will appear here.</p>
+    <div id="sensorDataResults"></div> <!-- New div for sensor data and warnings -->
+  </section>
+
+<script>
+// Sample of Documents
+const sampleDocs = [
+    {
+        documentId: "PID-001",
+        revisionNumber: "Z",
+        revisionDate: "15/11/2023",
+        tagNumber: "P-2042",
+        documentTitle: "P&ID for Compressor P-2042",
+        discipline: "Process",
+        documentCategory: "MER",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/1",
+        projectNumber: "4876" // Added project number
+    },
+    {
+        documentId: "4876-PID-001",
+        revisionNumber: "A",
+        revisionDate: "17/05/2024",
+        tagNumber: "P-2042",
+        documentTitle: "P&ID for Compressor T-2042",
+        discipline: "Process",
+        documentCategory: "Project Doc.",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/1",
+        projectNumber: "4876" // Added project number
+    },
+    {
+        documentId: "DS-001",
+        revisionNumber: "Z",
+        revisionDate: "03/07/2022",
+        tagNumber: "P-2042",
+        documentTitle: "Datasheet for Compressor P-2042",
+        discipline: "Mechanical",
+        documentCategory: "MER",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/2",
+        projectNumber: "4876" // Added project number
+    },
+    {
+        documentId: "PID-002",
+        revisionNumber: "Z",
+        revisionDate: "12/10/2023",
+        tagNumber: "T-309",
+        documentTitle: "P&ID for Tank T-309",
+        discipline: "Process",
+        documentCategory: "MER",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/1",
+        projectNumber: "3900" // Added project number
+    },
+    {
+        documentId: "DS-002",
+        revisionNumber: "Z",
+        revisionDate: "18/05/2022",
+        tagNumber: "T-309",
+        documentTitle: "Datasheet for Tank T-309",
+        discipline: "Mechanical",
+        documentCategory: "MER",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/2",
+        projectNumber: "3900" // Added project number
+    },
+    {
+        documentId: "3900-DS-002",
+        revisionNumber: "B",
+        revisionDate: "05/09/2023",
+        tagNumber: "T-309",
+        documentTitle: "Datasheet for Tank T-309",
+        discipline: "Mechanical",
+        documentCategory: "Project Doc.",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/2",
+        projectNumber: "3900" // Added project number
+    },
+    {
+        documentId: "PFD-003",
+        revisionNumber: "Z",
+        revisionDate: "25/02/2022",
+        tagNumber: "V-115",
+        documentTitle: "PFD for Valve V-115",
+        discipline: "Process",
+        documentCategory: "MER",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/3",
+        projectNumber: "4876" // Added project number
+    },
+    {
+        documentId: "4876-PFD-003",
+        revisionNumber: "C",
+        revisionDate: "20/09/2023",
+        tagNumber: "V-115",
+        documentTitle: "PFD for Valve V-115",
+        discipline: "Process",
+        documentCategory: "Project Doc.",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/3",
+        projectNumber: "4876" // Added project number
+    },
+    {
+        documentId: "DS-003",
+        revisionNumber: "Z",
+        revisionDate: "12/04/2022",
+        tagNumber: "V-115",
+        documentTitle: "Datasheet for Valve V-115",
+        discipline: "Mechanical",
+        documentCategory: "MER",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/2",
+        projectNumber: "4876" // Added project number
+    },
+    {
+        documentId: "PID-004",
+        revisionNumber: "Z",
+        revisionDate: "15/11/2023",
+        tagNumber: "P-2043",
+        documentTitle: "P&ID for Compressor P-2043",
+        discipline: "Process",
+        documentCategory: "MER",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/1",
+        projectNumber: "4876" // Added project number
+    },
+    {
+        documentId: "4876-PID-004",
+        revisionNumber: "A",
+        revisionDate: "17/05/2024",
+        tagNumber: "P-2043",
+        documentTitle: "P&ID for Compressor T-2043",
+        discipline: "Process",
+        documentCategory: "Project Doc.",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/1",
+        projectNumber: "4876" // Added project number
+    },
+    {
+        documentId: "DS-004",
+        revisionNumber: "Z",
+        revisionDate: "03/07/2022",
+        tagNumber: "P-2043",
+        documentTitle: "Datasheet for Compressor P-2043",
+        discipline: "Mechanical",
+        documentCategory: "MER",
+        locationCode: "Dukhan",
+        folderLocation: "https://docs.example.com/folder/2",
+        projectNumber: "4876" // Added project number
+    }
+];
+
+// Sample of Project Number Data
+const projectData = [
+    {
+        projectNumber: '4876',
+        projectTitle: 'Project Alpha',
+        contractNumber: 'GCXXYY001',
+        projectType: 'EPIC',
+        projectEngineer: 'Handar Saputra',
+        contractorName: 'ABC Construction',
+        location: 'Halul',
+        issuedDate: '12/10/2018',
+        status: 'Completed',
+        link: 'https://eis.example.com/project/P-001'
+    },
+    {
+        projectNumber: '3900',
+        projectTitle: 'Project Beta',
+        contractNumber: 'GCYYYY002',
+        projectType: 'EPIC',
+        projectEngineer: 'M Shafiq Abdullah',
+        contractorName: 'XYZ Renovations',
+        location: 'Dukhan',
+        issuedDate: '25/05/2015',
+        status: 'Completed',
+        link: 'https://eis.example.com/project/P-002'
+    },
+    // Add more dummy projects as needed
+];
+
+// Sample of Equipment Data
+const equipmentData = [
+    {
+        id: 'P-2042',
+        name: 'Compressor P-2042',
+        manufacturer: 'Acme Corp',
+        installationDate: '20/05/2018',
+        sensors: { temperature: 75, pressure: 120, vibration: 3.2 },
+        thresholds: { temperature: 77, pressure: 122, vibration: 3.5 },
+        asBuiltDocs: ['PID-001', 'Datasheet P-2042'],
+        maintenanceHistory: ['10/01/2023 - Oil replaced', '12/03/2024 - Pressure valve inspected']
+    },
+    {
+        id: 'T-309',
+        name: 'Tank T-309',
+        manufacturer: 'XYZ Corp',
+        installationDate: '11/07/2020',
+        sensors: { temperature: 65, pressure: 95, vibration: 2.8 },
+        thresholds: { temperature: 67, pressure: 97, vibration: 3.0 },
+        asBuiltDocs: ['PID-002', 'Datasheet T-309'],
+        maintenanceHistory: ['01/04/2023 - Internal cleaning', '05/05/2024 - Pressure test']
+    },
+    {
+        id: 'V-115',
+        name: 'Valve V-115',
+        manufacturer: 'Kenza Corp',
+        installationDate: '25/10/2021',
+        sensors: { temperature: 40, pressure: 35, vibration: 1.1 },
+        thresholds: { temperature: 42, pressure: 37, vibration: 1.3 },
+        asBuiltDocs: ['PFD-003', 'Datasheet V-115'],
+        maintenanceHistory: ['20/08/2023 - Re-calibrated']
+    }
+];
+
+// Login Handler Module
+document.getElementById('loginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    if (!username || !password) {
+      alert("Please enter username and password");
+      return;
+    }
+    loginPage.style.display = 'none';
+    mainPage.style.display = 'block';
+    navButtons.forEach(b => b.classList.remove('active'));
+    navButtons[0].classList.add('active'); // Set Natural Language Search as active
+    sections.forEach(s => s.style.display = s.id === 'naturalLanguageSearchSection' ? 'block' : 'none'); // Show Natural Language Search
+    loadDashboard(); // Load the dashboard if needed
+});
+
+// Natural Language Search Section
+const naturalLanguageSearchInput = document.getElementById('naturalLanguageSearchInput');
+const naturalLanguageSearchButton = document.getElementById('naturalLanguageSearchButton');
+const clearHistoryButton = document.getElementById('clearHistoryButton');
+const naturalLanguageSearchResults = document.getElementById('naturalLanguageSearchResults');
+const historicalQueriesList = document.getElementById('historicalQueriesList');
+naturalLanguageSearchButton.addEventListener('click', () => {
+    const query = naturalLanguageSearchInput.value.trim();
+    
+// Clear results if the input is empty
+  if (!query) {
+      naturalLanguageSearchResults.innerHTML = ''; // Clear the results display
+      return;
+  }
+  
+// Call the natural language search function
+  const results = handleNaturalLanguageQuery(query);
+  displayNaturalLanguageSearchResults(results);
+    
+// Record the query in historical conversation
+  recordHistoricalQuery(query);
+});
+
+// Clear the historical querie
+clearHistoryButton.addEventListener('click', () => {
+    historicalQueriesList.innerHTML = ''; s
+});
+
+// Function to record historical queries
+function recordHistoricalQuery(query) {
+  const queryElement = document.createElement('div');
+  queryElement.textContent = query; // Display the query
+  historicalQueriesList.appendChild(queryElement); // Add to historical queries list
+}
+
+// Function to handle natural language queries
+function handleNaturalLanguageQuery(query) {
+    const lowerQuery = query.toLowerCase();
+    let results = [];
+
+    // Example queries and responses
+    if (lowerQuery.includes("latest approved p&id") && lowerQuery.includes("compressor p-2042")) {
+        results.push("Latest approved P&ID for Compressor P-2042: PID-001");
+    } else if (lowerQuery.includes("last maintenance performed") && lowerQuery.includes("tank t-309")) {
+        results.push("Last maintenance performed on Tank T-309: 15/01/2024");
+    } else if (lowerQuery.includes("documents related to project 4876")) {
+        results.push("Documents related to Project 4876: PID-001, PID-002");
+    } else {
+        results.push("No relevant documents found for your query.");
+    }
+
+    return results;
+}
+
+// Function to display natural language search results
+function displayNaturalLanguageSearchResults(results) {
+    naturalLanguageSearchResults.innerHTML = '';
+    results.forEach((result) => {
+        const resultHTML = `
+            <p>${result}</p>
+        `;
+        naturalLanguageSearchResults.insertAdjacentHTML('beforeend', resultHTML);
+    });
+}
+
+// Document Search Section
+const navButtons = document.querySelectorAll('nav button');
+const sections = document.querySelectorAll('.contentSection');
+
+navButtons.forEach(btn => {
+  btn.addEventListener('click', () => {
+    navButtons.forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const sectionId = btn.getAttribute('data-section');
+    sections.forEach(s => s.style.display = s.id === sectionId ? 'block' : 'none');
+  });
+});
+
+// Display Search Results
+function displaySearchResults(results) {
+    const searchResultsDiv = document.getElementById('searchResults');
+    searchResultsDiv.innerHTML = '';
+    if (results.length === 0) {
+        searchResultsDiv.innerHTML = '<p>No documents found!</p>';
+        return;
+    }
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse';
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    ['Document Title', 'Doc Number', 'Tag Number', 'Document Category', 'Revision Number', 'Revision Date', 'Folder Location', 'Project Number'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    results.forEach(doc => {
+        const row = document.createElement('tr');
+
+        // Document Title link
+        const titleCell = document.createElement('td');
+        const titleLink = document.createElement('a');
+        titleLink.href = `https://example.com/documents/${encodeURIComponent(doc.documentId.toLowerCase())}.pdf`;
+        titleLink.textContent = doc.documentTitle;
+        titleLink.target = '_blank';
+        titleLink.rel = 'noopener noreferrer';
+        titleCell.appendChild(titleLink);
+        row.appendChild(titleCell);
+
+        // Doc Number
+        const docNumCell = document.createElement('td');
+        docNumCell.textContent = doc.documentId;
+        row.appendChild(docNumCell);
+
+        // Tag Number clickable
+        const tagCell = document.createElement('td');
+        const tagLink = document.createElement('a');
+        tagLink.href = '#';
+        tagLink.textContent = doc.tagNumber;
+        tagLink.style.color = '#0d6efd';
+        tagLink.style.textDecoration = 'none';
+        tagLink.addEventListener('click', e => {
+            e.preventDefault();
+            showEquipmentModal(doc.tagNumber); // Function to show tag details
+        });
+        tagCell.appendChild(tagLink);
+        row.appendChild(tagCell);
+
+        // Document Category
+        const documentCategoryCell = document.createElement('td');
+        documentCategoryCell.textContent = doc.documentCategory;
+        row.appendChild(documentCategoryCell);
+
+        // Revision Number
+        const revNumCell = document.createElement('td');
+        revNumCell.textContent = doc.revisionNumber;
+        row.appendChild(revNumCell);
+
+        // Revision Date
+        const revDateCell = document.createElement('td');
+        revDateCell.textContent = doc.revisionDate;
+        row.appendChild(revDateCell);
+
+        // Folder Location link
+        const folderCell = document.createElement('td');
+        const folderLink = document.createElement('a');
+        folderLink.href = doc.folderLocation;
+        folderLink.textContent = 'Open Folder';
+        folderLink.target = '_blank';
+        folderLink.rel = 'noopener noreferrer';
+        folderCell.appendChild(folderLink);
+        row.appendChild(folderCell);
+
+        // Project Number clickable
+        const projectCell = document.createElement('td');
+        const projectLink = document.createElement('a');
+        projectLink.href = '#';
+        projectLink.textContent = doc.projectNumber;
+        projectLink.style.color = '#0d6efd';
+        projectLink.style.textDecoration = 'none';
+        projectLink.addEventListener('click', e => {
+            e.preventDefault();
+            showProjectDetails(doc.projectNumber); // Function to show project details
+        });
+        projectCell.appendChild(projectLink);
+        row.appendChild(projectCell);
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    searchResultsDiv.appendChild(table);
+}
+
+// Event listener for keyword search input
+document.getElementById('searchInput').addEventListener('input', e => {
+    const query = e.target.value.trim();
+    if (!query) {
+        document.getElementById('searchResults').innerHTML = '<p>Start typing to search documents...</p>';
+        return;
+    }
+    const results = searchDocuments(query);
+    displaySearchResults(results);
+});
+
+// Function to display document search results
+function searchDocuments(query) {
+    const lowerQuery = query.toLowerCase();
+    return sampleDocs.filter(doc =>
+        (doc.documentTitle && doc.documentTitle.toLowerCase().includes(lowerQuery)) ||
+        (doc.tagNumber && doc.tagNumber.toLowerCase().includes(lowerQuery)) ||
+        (doc.documentCategory && doc.documentCategory.toLowerCase().includes(lowerQuery)) ||
+        (doc.documentId && doc.documentId.toLowerCase().includes(lowerQuery))
+    );
+}
+
+// Function to show equipment modal
+let modalUpdateInterval;
+function showEquipmentModal(tagNumber) {
+  const equipment = equipmentData.find(eq => eq.id.toLowerCase() === tagNumber.toLowerCase());
+  const modalContent = document.getElementById('modalBodyContent');
+  modalContent.innerHTML = ''; // Clear previous content
+
+  if (!equipment) {
+    modalContent.innerHTML = `<p>No equipment found for tag: ${tagNumber}</p>`;
+  } else {
+    function updateModalContent(eq) {
+      // Update sensor values
+      eq.sensors.temperature = fluctuate(eq.sensors.temperature, 2);
+      eq.sensors.pressure = fluctuate(eq.sensors.pressure, 5);
+      eq.sensors.vibration = fluctuate(eq.sensors.vibration, 0.5);
+
+      const warnings = predictThresholdCrossing(eq);
+      const warningText = warnings.length > 0
+        ? `<p style="color:red;"><strong>Warnings:</strong><br>${warnings.join('<br>')}</p>`
+        : `<p style="color:green;">No warnings.</p>`;
+
+      modalContent.innerHTML = `
+        <h3>${eq.name} (${eq.id})</h3>
+        <ul style="list-style:none; padding-left:0;">
+          <li><strong>Temperature:</strong> ${eq.sensors.temperature}°C</li>
+          <li><strong>Pressure:</strong> ${eq.sensors.pressure} PSI</li>
+          <li><strong>Vibration:</strong> ${eq.sensors.vibration} mm/s</li>
+        </ul>
+        ${warningText}
+        <h4>Maintenance History</h4>
+        <ul>${eq.maintenanceHistory.map(i => `<li>${i}</li>`).join('')}</ul>
+        <h4>As-Built Documents</h4>
+        <ul>${eq.asBuiltDocs.map(doc => `<li><a href="https://example.com/documents/${encodeURIComponent(doc.toLowerCase().replace(/\s+/g, '-'))}.pdf" target="_blank">${doc}</a></li>`).join('')}</ul>
+      `;
+    }
+
+    // Immediately show content and start live updates
+    updateModalContent(equipment);
+    clearInterval(modalUpdateInterval); // clear any previous interval
+    modalUpdateInterval = setInterval(() => updateModalContent(equipment), 2000);
+  }
+
+  document.getElementById('equipmentModal').style.display = 'flex'; // Show the modal
+}
+
+// Close modal functionality
+document.getElementById('modalCloseBtn').addEventListener('click', () => {
+    document.getElementById('equipmentModal').style.display = 'none'; // Hide the modal
+});
+window.addEventListener('click', e => {
+    const modal = document.getElementById('equipmentModal');
+    if (e.target === modal) {
+        modal.style.display = 'none'; // Hide the modal if clicked outside
+    }
+});
+
+// Function to show project details modal
+function showProjectDetails(projectNumber) {
+    const project = projectData.find(p => p.projectNumber === projectNumber);
+    const projectDetailsBody = document.getElementById('projectDetailsBody');
+    projectDetailsBody.innerHTML = ''; // Clear previous content
+    if (!project) {
+        projectDetailsBody.innerHTML = `<p>No project found for number: ${projectNumber}</p>`;
+    } else {
+        const contentHTML = `
+            <p><strong>Project No.:</strong> ${project.projectNumber}</p>
+            <p><strong>Title:</strong> ${project.projectTitle}</p>
+            <p><strong>Contract No.:</strong> ${project.contractNumber}</p>
+            <p><strong>Type:</strong> ${project.projectType}</p>
+            <p><strong>Engineer:</strong> ${project.projectEngineer}</p>
+            <p><strong>Location:</strong> ${project.location}</p>
+            <p><strong>Issued Date:</strong> ${project.issuedDate}</p>
+            <p><strong>Status:</strong> ${project.status}</p>
+            <p><strong>Dossier Link:</strong> <a href="${project.dossierLink}" target="_blank" rel="noopener noreferrer">View Dossier</a></p>
+        `;
+        projectDetailsBody.innerHTML = contentHTML;
+    }
+    document.getElementById('projectDetailsModal').style.display = 'flex'; // Show the modal
+}
+
+// Close project modal functionality
+document.getElementById('projectModalCloseBtn').addEventListener('click', () => {
+    document.getElementById('projectDetailsModal').style.display = 'none'; // Hide the modal
+});
+window.addEventListener('click', e => {
+    const modal = document.getElementById('projectDetailsModal');
+    if (e.target === modal) {
+        modal.style.display = 'none'; // Hide the modal if clicked outside
+    }
+});
+
+//Project Search Dashboard
+// Search Project by keyword
+   function searchProject(query) {
+       const lowerQuery = query.toLowerCase();
+       console.log("Searching for:", lowerQuery); // Debugging line
+       const results = projectData.filter(doc =>
+           (doc.projectNumber && doc.projectNumber.toLowerCase().includes(lowerQuery)) ||
+           (doc.projectTitle && doc.projectTitle.toLowerCase().includes(lowerQuery)) ||
+           (doc.contractNumber && doc.contractNumber.toLowerCase().includes(lowerQuery)) ||
+           (doc.projectType && doc.projectType.toLowerCase().includes(lowerQuery)) ||
+           (doc.location && doc.location.toLowerCase().includes(lowerQuery))
+       );
+       console.log("Results found:", results); // Debugging line
+       return results;
+   }
+
+// Event listener for keyword Project input
+   document.getElementById('projectSearchInput').addEventListener('input', e => {
+       const query = e.target.value.trim();
+       if (!query) {
+           document.getElementById('projectSearchResults').innerHTML = '<p>Start typing to search projects...</p>';
+           return;
+       }
+       const results = searchProject(query);
+       displayProjectResults(results);
+   });
+
+// Show initial message in Project results
+document.getElementById('projectSearchResults').innerHTML = '<p>Start typing to search projects...</p>';
+
+// Display Project results
+function displayProjectResults(results) {
+    const searchResultsDiv = document.getElementById('projectSearchResults');
+    searchResultsDiv.innerHTML = '';
+    if (results.length === 0) {
+        searchResultsDiv.innerHTML = '<p>No project found!</p>';
+        return;
+    }
+    const table = document.createElement('table');
+    table.style.width = '100%';
+    table.style.borderCollapse = 'collapse';
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    ['Project No.', 'Project Title', 'Contract No.', 'Project Type', 'Project Engineer', 'Contractor Name', 'Location', 'Issued Date', 'Status', 'Link in EIS'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow.appendChild(th);
+    });
+
+    thead.appendChild(headerRow);
+    table.appendChild(thead);
+    const tbody = document.createElement('tbody');
+    results.forEach(doc => {
+        const row = document.createElement('tr');
+
+        // Project Number
+        const ProjNumberCell = document.createElement('td');
+        ProjNumberCell.textContent = doc.projectNumber;
+        row.appendChild(ProjNumberCell);
+
+        // Project Title
+        const ProjTitleCell = document.createElement('td');
+        ProjTitleCell.textContent = doc.projectTitle;
+        row.appendChild(ProjTitleCell);
+
+        // Contract Number
+        const ContractNumberCell = document.createElement('td');
+        ContractNumberCell.textContent = doc.contractNumber;
+        row.appendChild(ContractNumberCell);
+
+        // Project Type
+        const ProjectTypeCell = document.createElement('td');
+        ProjectTypeCell.textContent = doc.projectType;
+        row.appendChild(ProjectTypeCell);
+
+        // Project Engineer
+        const ProjectEngineerCell = document.createElement('td');
+        ProjectEngineerCell.textContent = doc.projectEngineer;
+        row.appendChild(ProjectEngineerCell);
+
+        // Contractor Name
+        const ContractNameCell = document.createElement('td');
+        ContractNameCell.textContent = doc.contractorName;
+        row.appendChild(ContractNameCell);
+
+        // Location
+        const LocationCell = document.createElement('td');
+        LocationCell.textContent = doc.location;
+        row.appendChild(LocationCell);
+
+        // Issued Date
+        const IssuedDateCell = document.createElement('td');
+        IssuedDateCell.textContent = doc.issuedDate
+        row.appendChild(IssuedDateCell);
+
+        // Status
+        const StatusCell = document.createElement('td');
+        StatusCell.textContent = doc.status;
+        row.appendChild(StatusCell);
+
+// Link in EIS
+const LinkCell = document.createElement('td');
+const EISLink = document.createElement('a');
+EISLink.href = doc.link;
+EISLink.textContent = 'View Project';
+EISLink.target = '_blank';
+EISLink.rel = 'noopener noreferrer';
+LinkCell.appendChild(EISLink);
+row.appendChild(LinkCell);
+
+        
+        tbody.appendChild(row);
+    });
+    table.appendChild(tbody);
+    searchResultsDiv.appendChild(table);
+}
+
+// Equipment Dashboard
+let currentMatchedEquipment = [];
+
+// Search Equipment by keyword
+function searchEquipmentByTagNumberPartial(query) {
+  const lowerQuery = query.toLowerCase();
+  return equipmentData.filter(eq =>
+    eq.id.toLowerCase().includes(lowerQuery) ||
+    eq.name.toLowerCase().includes(lowerQuery)
+  );
+}
+
+//Active Listener by keyword
+document.getElementById('tagSearchInput').addEventListener('input', e => {
+    const query = e.target.value.trim();
+    if (!query) {
+        document.getElementById('equipmentResults').innerHTML = '<p>Start typing to search equipment...</p>';
+        document.getElementById('sensorDataResults').innerHTML = '';
+        currentMatchedEquipment = [];
+        return;
+    }
+    const results = searchEquipmentByTagNumberPartial(query);
+    currentMatchedEquipment = results; // <-- Store results globally
+    displayEquipmentResults(results);
+    displaySensorData(results);
+});
+
+
+// Display Equipment Results
+    function displayEquipmentResults(results) {
+      const container = document.getElementById('equipmentResults');
+      container.innerHTML = '';
+
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const headerRow = document.createElement('tr');
+      ['Tag Number', 'Tag Name', 'Location in GIS', 'Link to 3D Model', 'As-Built Documents', 'Manufacturer', 'Installation Date'].forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+      table.appendChild(thead);
+
+      const tbody = document.createElement('tbody');
+      results.forEach(eq => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${eq.id}</td>
+          <td>${eq.name}</td>
+          <td><a href="https://gis.example.com/${eq.id}" target="_blank">View GIS</a></td>
+          <td><a href="#vrSection" onclick="setupValveClick()">Open 3D Model</a></td>
+          <td>${eq.manufacturer}</td>
+          <td>${eq.installationDate}</td>
+          <td>${eq.asBuiltDocs.join(', ')}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      table.appendChild(tbody);
+      container.appendChild(table);
+    }
+
+    //Display Sensor Data
+      function displaySensorData(results) {
+        const container = document.getElementById('sensorDataResults');
+        container.innerHTML = '';
+
+        results.forEach(eq => {
+          eq.sensors.temperature = fluctuate(eq.sensors.temperature, 2);
+          eq.sensors.pressure = fluctuate(eq.sensors.pressure, 5);
+          eq.sensors.vibration = fluctuate(eq.sensors.vibration, 0.5);
+
+          const warnings = predictThresholdCrossing(eq);
+          const warningText = warnings.length > 0 ? warnings.join(', ') : 'No warnings';
+          const warningColor = warnings.length > 0 ? 'red' : 'green';
+
+          const div = document.createElement('div');
+          div.className = 'sensor-box';
+          div.innerHTML = `
+            <h4>${eq.name} (${eq.id})</h4>
+            <p><strong>Temperature:</strong> ${eq.sensors.temperature} °C</p>
+            <p><strong>Pressure:</strong> ${eq.sensors.pressure} bar</p>
+            <p><strong>Vibration:</strong> ${eq.sensors.vibration} mm/s</p>
+            <p><strong>Warnings:</strong> <span style="color:${warningColor};">${warningText}</span></p>
+          `;
+          container.appendChild(div);
+        });
+      }
+
+  // Sensor helpers
+    function fluctuate(value, maxChange) {
+      const change = (Math.random() * 2 - 1) * maxChange;
+      return Math.max(0, +(value + change).toFixed(1));
+    }
+
+  // Auto refresh sensor values every 2 seconds
+    setInterval(() => {
+      if (currentMatchedEquipment.length > 0) {
+        displaySensorData(currentMatchedEquipment);
+      }
+    }, 2000); // update every 2000 milliseconds = 2 seconds
+
+
+  // Called each time sensors are updated; save readings into history
+    function updateSensorHistory(eq) {
+      if (!sensorHistory[eq.id]) {
+        sensorHistory[eq.id] = { temperature: [], pressure: [], vibration: [] };
+      }
+      ['temperature', 'pressure', 'vibration'].forEach(sensor => {
+        let hist = sensorHistory[eq.id][sensor];
+        hist.push(eq.sensors[sensor]);
+        if (hist.length > historyMaxLength) hist.shift();
+      });
+    }
+
+  // Simple linear trend estimation to predict potential threshold crossing
+    function predictThresholdCrossing(eq) {
+      const warnings = [];
+      for (let key in eq.sensors) {
+        if (eq.sensors[key] > eq.thresholds[key]) {
+          warnings.push(`${key} exceeds threshold (${eq.sensors[key]} > ${eq.thresholds[key]})`);
+        }
+      }
+      return warnings;
+    }
+
+
+</script>
+</div>
+</body>
+</html>
