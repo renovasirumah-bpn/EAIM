@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-<!-- saved from url=(0095)file:///C:/04%20HANDAR/PROJECTS/INFORMATION%20MANAGEMENT/Prototype/Information_Management.html? -->
 <html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -243,6 +242,23 @@
     <p>Simulated sensor data and equipment status will appear here.</p>
     <div id="sensorDataResults"></div> <!-- New div for sensor data and warnings -->
   </section>
+
+<!-- Link to 3D Section -->
+<section id="vrSection" class="contentSection" style="display:none;">
+  <h3>3D Asset View</h3>
+  <div id="threeDContainer">
+    <model-viewer id="viewer3D"
+      src=""
+      alt="3D model"
+      auto-rotate
+      camera-controls
+      style="width: 100%; height: 400px; background: #e9ecef; border-radius: 8px;">
+    </model-viewer>
+    <p id="modelTagInfo"></p>
+  </div>
+</section>
+
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
 
 <script>
 // Sample of Documents
@@ -929,10 +945,11 @@ document.getElementById('tagSearchInput').addEventListener('input', e => {
           <td>${eq.id}</td>
           <td>${eq.name}</td>
           <td><a href="https://gis.example.com/${eq.id}" target="_blank">View GIS</a></td>
-          <td><a href="#vrSection" onclick="setupValveClick()">Open 3D Model</a></td>
+          <td><a href="#vrSection" onclick="showVRModel('${eq.id}')">Open 3D Model</a></td>
+          <td>${eq.asBuiltDocs.join(', ')}</td>
           <td>${eq.manufacturer}</td>
           <td>${eq.installationDate}</td>
-          <td>${eq.asBuiltDocs.join(', ')}</td>
+          
         `;
         tbody.appendChild(row);
       });
@@ -940,6 +957,30 @@ document.getElementById('tagSearchInput').addEventListener('input', e => {
       table.appendChild(tbody);
       container.appendChild(table);
     }
+
+    //Display Equipment 3D Model from Equipment Dashboard
+      function showVRModel(tag) {
+        const viewer = document.getElementById('viewer3D');
+        const info = document.getElementById('modelTagInfo');
+
+        const fileMap = {
+          "P-2042": "P-2042.glb",
+          "T-309": "T-309.glb",
+          "V-115": "V-115.glb"
+        };
+
+        // Sembunyikan section lain
+        document.querySelectorAll('.contentSection').forEach(s => s.style.display = 'none');
+        document.getElementById('vrSection').style.display = 'block';
+
+        if (fileMap[tag]) {
+          viewer.src = fileMap[tag];
+          info.innerHTML = `<strong>Tag Number:</strong> ${tag} &nbsp;|&nbsp; <strong>Model File:</strong> ${fileMap[tag].split('/').pop()}`;
+        } else {
+          viewer.src = "";
+          info.innerHTML = `<p style="color:red;">No 3D model available for tag: ${tag}</p>`;
+        }
+      }
 
     //Display Sensor Data
       function displaySensorData(results) {
